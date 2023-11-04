@@ -11,35 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package teetime.framework.exceptionHandling
 
-import java.util.ArrayList
-import java.util.List
-
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-import teetime.framework.AbstractStage
+from enum import Enum
+from teetime.framework.AbstractStage import AbstractStage
 
 # Represents a minimalistic StageExceptionListener.
 # Listener which extend from this one, must a least implement this functionality.
 # This abstract class provides a Logger:@link #logger} and the method:@link #onStageException(Exception, AbstractStage)} which is called on every raised
 # exception.
-public abstract class AbstractExceptionListener:
+class AbstractExceptionListener:
 
-	public enum FurtherExecution:
-		CONTINUE, TERMINATE
-	}
+	class FurtherExecution(Enum):
+		CONTINUE = 1
+		TERMINATE = 2
 
-	protected final Logger logger // NOPMD can't be static as it needs to be initialized in cstr
 
-	private final List<Exception> loggedExceptions = new ArrayList<Exception>()
-	private final boolean logExceptions
+	logged_exceptions: list(Exception) = []
+	log_exceptions: bool
 
-	protected AbstractExceptionListener(final boolean shouldLogExceptions):
-		self.logger = LoggerFactory.getLogger(self.getClass().getCanonicalName())
-		self.logExceptions = shouldLogExceptions
-	}
+	def __init__(self, should_log_exceptions:bool):
+		self.log_exceptions = should_log_exceptions
 
 	# This method will be executed if an exception arises.
 	#
@@ -49,17 +40,15 @@ public abstract class AbstractExceptionListener:
 	#            the stage, which has thrown the exception.
 	# @return
 	# 		true, if the thread should be terminated, false otherwise
-	public abstract FurtherExecution onStageException(Exception exception, AbstractStage throwingStage)
+	def on_stage_exception(self, exception: Exception, throwing_stage: AbstractStage) -> FurtherExecution:
+		pass
+	
+	def get_logged_exceptions(self) -> list(Exception):
+		self.logged_exceptions
 
-	public List<Exception> getLoggedExceptions():
-		return loggedExceptions
-	}
+	def report_exception(self, e: Exception, stage: AbstractStage) -> FurtherExecution:
+		if (self.log_exceptions):
+			self.logged_exceptions.add(e)
+		
+		return self.on_stage_exception(e, stage)
 
-	public FurtherExecution reportException(final Exception e, final AbstractStage stage):
-		if (logExceptions):
-			loggedExceptions.add(e)
-		}
-		return onStageException(e, stage)
-	}
-
-}

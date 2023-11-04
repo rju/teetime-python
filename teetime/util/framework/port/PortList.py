@@ -36,7 +36,7 @@ class PortList(Generic[T]):
 		removed: bool = self._opened_ports.remove(port) #// BETTER remove by index for performance reasons
 		self._fire_port_removed(port)
 		if (not removed):
-			raise IllegalStateException()
+			raise Exception #IllegalStateException()
 
 		return removed
 

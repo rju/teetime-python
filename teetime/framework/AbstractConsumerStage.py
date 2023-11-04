@@ -11,26 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package teetime.framework
 
-import org.slf4j.Logger
+import teetime.framework.AbstractStage as AbstractStage
+import logging
 
-public abstract class AbstractConsumerStage<I> extends AbstractStage:
+class AbstractConsumerStage(AbstractStage):
 
-	// Creation of this input port requires to use super and null for both parameters
-	// in order to invoke the original AbstractStage.createInputPort() instead of
-	// the one overridden in this stage.
-	protected final InputPort<I> inputPort = super.createInputPort(null, null)
+	# Creation of this input port requires to use super and null for both parameters
+	# in order to invoke the original AbstractStage.createInputPort() instead of
+	# the one overridden in this stage.
+	##protected final InputPort<I> inputPort = super.createInputPort(null, null)
 
-	public AbstractConsumerStage():
-		super()
-	}
-
-	# @param logger
-	#            a custom logger (potentially shared by multiple stage instances)
-	public AbstractConsumerStage(final Logger logger):
-		super(logger)
-	}
+	def __init__(self):
+		self.super()
 
 	public final InputPort<I> getInputPort():
 		return self.inputPort

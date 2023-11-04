@@ -11,28 +11,33 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package teetime.framework
+from teetime.framework.AbstractStage import AbstractStage
 
 # Represents a scheduling strategy for TeeTime-based configurations.
 #
 # @author Nelson Tavares de Sousa
 #
 # @since 2.0
-public interface TeeTimeScheduler:
+class TeeTimeScheduler:
 
-	abstract void onInitialize()
+	def on_initialize(self):
+		pass
 
-	abstract void onValidate()
+	def on_validate(self):
+		pass
 
 	# Executes the execution.
-	abstract void onExecute()
+	def on_execute(self):
+		pass
 
 	# Aborts the execution.
-	abstract void onTerminate()
-
+	def on_terminate(self):
+		pass
+	
 	# Waits for the execution to finished.
-	abstract void onFinish()
+	def on_finish(self):
+		pass
 
 	# @since 3.0
-	abstract void startStageAtRuntime(final AbstractStage stage)
-}
+	def start_stage_at_runtime(self, stage: AbstractStage):
+		pass

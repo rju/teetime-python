@@ -13,10 +13,10 @@
 # limitations under the License.
 from typing import List, TypeVar, Generic
 
+T = TypeVar("T")
+
 from teetime.framework.pipe.pipe import IPipe
 from teetime.framework.AbstractStage import AbstractStage
-
-T = TypeVar("T")
 
 class Terminate:
 	pass

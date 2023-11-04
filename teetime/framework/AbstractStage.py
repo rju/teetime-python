@@ -15,15 +15,16 @@
 # Represents a minimal Stage, with some pre-defined methods.
 # Implemented stages need to adapt all abstract methods with own implementations.
 from abc import ABC, abstractmethod
-
+import logging
+from teetime.framework.exceptionHandling.AbstractExceptionListener import AbstractExceptionListener
+from threading import Thread
+from teetime.framework.TeeTimeScheduler import TeeTimeScheduler
+from teetime.util.framework.port.PortList import PortList
+from teetime.framework.InputPort import InputPort
 
 class AbstractStage(ABC):
 
 	INSTANCES_COUNTER = dict()
-
-	ON_STATE_CHANGE_MARKER: Marker = MarkerFactory.getMarker("ON_STATE_CHANGE_MARKER")
-
-	_logger: Logger
 
 	_id: str
 	_exception_listener: AbstractExceptionListener
@@ -34,11 +35,11 @@ class AbstractStage(ABC):
 	_signal_map = dict() # ISignal, Set<InputPort<?>>
 	_triggered_signal_types = set() # ISignal
 
-	_input_ports = PortList[InputPort[?]]()
-	_output_ports = PortList[OutputPort[?]]()
+	_input_ports = PortList[InputPort]()
+	_output_ports = PortList[OutputPort]()
 
-	_called_on_terminating = false
-	_called_on_starting = false
+	_called_on_terminating: bool = False
+	_called_on_starting: bool = False
 
 	_current_state = StageState.CREATED
 	_num_opened_input_ports: int
@@ -46,12 +47,12 @@ class AbstractStage(ABC):
 	# for GlobalTaskQueueScheduling only
 	_level_index: int = 0
 	# TODO used only by global task pool scheduling so far
-	_atomic_being_executed = false
-	_atomic_paused = false
+	_atomic_being_executed: bool = False
+	_atomic_paused: bool = False
 
 	# A list which save a timestamp and an associated state (active or inactive).
 	# This Information can be used for Bottleneck analysis.
-	_states = List[StateChange]
+	_states: list(StateChange) = []
 
 	_last_state = StateChange(StageActivationState.INITIALIZED, System.nanoTime())
 
@@ -285,7 +286,7 @@ class AbstractStage(ABC):
 		self._check_type_compliance(invalid_port_connections)
 		if (slef.get_scheduler() == null):
 			raise IllegalStateException("A stage may not have a nullable scheduler.")
-44
+
 		self.change_state(StageState.VALIDATED)
 
 	# Event that is triggered, if all of the following conditions hold:

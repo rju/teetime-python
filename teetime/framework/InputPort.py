@@ -11,7 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package teetime.framework
+from typing import List, TypeVar, Generic
+from teetime.framework.AbstractStage import AbstractStage
+
+T = TypeVar("T")
+
+from teetime.framework.AbstractPort import AbstractPort
 
 #
 # @author Christian Wulf
@@ -20,50 +25,40 @@ package teetime.framework
 #            the type of elements to be sent
 #
 # @since 1.0
-public class InputPort<T> extends AbstractPort<T>:
+class InputPort(AbstractPort[T]): # was generic
 
-	InputPort(final Class<T> type, final AbstractStage owningStage, final String portName):
-		super(type, owningStage, portName)
-	}
-
-	# For testing purposes only.
-	public InputPort():
-		super(null, null, null)
-	}
+	def __init__(self, type, owning_stage: AbstractStage, port_name: str):
+		super.__init__(self, type, owning_stage, port_name)
 
 	#
 	# @return the next element from the connected pipe, or <code>null</code> if the pipe is currently empty.
-	@SuppressWarnings("unchecked")
-	public T receive():
-		Object element = self.pipe.removeLast()
-		if (TERMINATE_ELEMENT == element):
-			pipe.close()// TODO remove volatile from isClosed
-			int size = pipe.size()
+	def receive(self) -> T:
+		element:T = self.pipe.removeLast()
+		if (self.TERMINATE_ELEMENT == element):
+			self.pipe.close() # TODO remove volatile from isClosed
+			size: int = self.pipe.size()
 			if (size > 0):
-				throw new IllegalStateException("Pipe " + pipe + " should be empty, but has a size of " + size)
-			}
-			AbstractStage owningStage = getOwningStage()
+				raise Exception("Pipe " + self.pipe + " should be empty, but has a size of " + size)
+			
+			owning_stage = self.get_owning_stage()
 
-			// TODO let the input port trigger the (TERM) signal for the stage
-			// ISignal signal = pipe.removeNextSignal()
-			// owningStage.onSignal(signal, this)
+			# TODO let the input port trigger the (TERM) signal for the stage
+			# ISignal signal = pipe.removeNextSignal()
+			# owningStage.onSignal(signal, this)
 
-			int numOpenedInputPorts = owningStage.decNumOpenedInputPorts()
-			owningStage.logger.trace("numOpenedInputPorts (dec)::}", numOpenedInputPorts)
-			if (numOpenedInputPorts == 0):
-				owningStage.terminateStageByFramework()
-			}
-			return null // NOPMD (two returns)
-		}
-		return (T) element
-	}
+			num_opened_input_ports = owning_stage.dec_num_opened_input_ports()
+			owning_stage.logger.trace("numOpenedInputPorts (dec)::}", num_opened_input_ports)
+			if (num_opened_input_ports == 0):
+				owning_stage.terminate_stage_by_framework()
+			
+			return None # NOPMD (two returns)
+		
+		return element
+	
 
-	public boolean isClosed(): // FIXME remove: only used by divide and conquer
-		return pipe.isClosed() && !pipe.hasMore()
-	}
+	def is_closed(self) -> bool: #FIXME remove: only used by divide and conquer
+		return self.pipe.is_closed() and not self.pipe.has_more()
 
-	public void waitForStartSignal() throws InterruptedException:
-		pipe.waitForStartSignal()
-	}
+	def wait_for_start_signal(self): #throws InterruptedException:
+		self.pipe.wait_for_start_signal()
 
-}
